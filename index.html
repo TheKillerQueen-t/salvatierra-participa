@@ -1,0 +1,726 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salvatierra Participa</title>
+
+<style>
+:root {
+    --primary: #174b43;
+    --secondary: #246b5b;
+    --accent: #d6a84b;
+    --background: #f3f6f4;
+    --text: #24332f;
+    --white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+header {
+    background: var(--primary);
+    color: white;
+    padding: 22px 7%;
+}
+
+.brand {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.brand span {
+    color: var(--accent);
+}
+
+header p {
+    margin-bottom: 0;
+    opacity: .85;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: #103a34;
+    padding: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+nav button {
+    background: transparent;
+    color: white;
+    border: none;
+    padding: 11px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+nav button:hover,
+nav button.active {
+    background: var(--secondary);
+}
+
+section {
+    display: none;
+    padding: 35px 7%;
+    min-height: 65vh;
+}
+
+section.active {
+    display: block;
+    animation: appear .3s ease;
+}
+
+@keyframes appear {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hero {
+    background: linear-gradient(120deg, #174b43, #347d68);
+    color: white;
+    border-radius: 22px;
+    padding: 55px 35px;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 38px;
+    margin: 10px 0;
+}
+
+.hero p {
+    max-width: 650px;
+    margin: 15px auto;
+    line-height: 1.6;
+}
+
+.hero button {
+    background: var(--accent);
+    color: #26352e;
+    padding: 13px 22px;
+    border: none;
+    border-radius: 9px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    margin: 20px auto;
+    max-width: 900px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.06);
+}
+
+h2 {
+    color: var(--primary);
+}
+
+.intro {
+    line-height: 1.7;
+    color: #56645f;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 22px;
+}
+
+.stat {
+    background: white;
+    padding: 20px;
+    text-align: center;
+    border-radius: 13px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.05);
+}
+
+.stat strong {
+    display: block;
+    font-size: 27px;
+    color: var(--primary);
+    margin-bottom: 5px;
+}
+
+label {
+    display: block;
+    margin: 14px 0 6px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d5dfda;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+}
+
+textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.primary-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin-top: 16px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.primary-btn:hover {
+    background: var(--secondary);
+}
+
+.report {
+    background: white;
+    border-radius: 13px;
+    padding: 20px;
+    margin: 15px 0;
+    border-left: 5px solid var(--secondary);
+    box-shadow: 0 3px 12px rgba(0,0,0,.05);
+}
+
+.report h3 {
+    color: var(--primary);
+    margin-top: 0;
+}
+
+.report p {
+    line-height: 1.5;
+}
+
+.status {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    background: #fff0ce;
+    color: #805b0c;
+}
+
+.status.revision {
+    background: #dcecff;
+    color: #20528b;
+}
+
+.status.atendido {
+    background: #d9f3e2;
+    color: #17613a;
+}
+
+.report-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.report-actions button {
+    border: none;
+    padding: 9px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    background: #e8efeb;
+    color: #174b43;
+}
+
+.report-actions .delete {
+    background: #fce4e4;
+    color: #a32929;
+}
+
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #78847f;
+}
+
+.notice {
+    background: #e5f0eb;
+    padding: 15px;
+    border-radius: 10px;
+    line-height: 1.5;
+    margin-top: 15px;
+}
+
+footer {
+    background: #103a34;
+    color: white;
+    padding: 25px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+@media(max-width:650px) {
+    .hero {
+        padding: 35px 20px;
+    }
+
+    .hero h1 {
+        font-size: 29px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    section {
+        padding: 25px 5%;
+    }
+
+    header {
+        padding: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">Salvatierra <span>Participa</span></div>
+    <p>Una comunidad que informa, propone y participa.</p>
+</header>
+
+<nav>
+    <button class="active" onclick="showSection('inicio',this)">🏠 Inicio</button>
+    <button onclick="showSection('reportar',this)">📝 Reportar</button>
+    <button onclick="showSection('reportes',this)">📋 Reportes</button>
+    <button onclick="showSection('participar',this)">💬 Participación</button>
+</nav>
+
+<section id="inicio" class="active">
+
+    <div class="hero">
+        <h1>Tu comunidad tiene voz.</h1>
+        <p>
+            Un espacio para conocer las necesidades de Salvatierra
+            y sus comunidades, compartir propuestas y dar seguimiento
+            a los asuntos que nos importan.
+        </p>
+        <button onclick="showSection('reportar',document.querySelectorAll('nav button')[1])">
+            Compartir una necesidad
+        </button>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <strong id="totalReportes">0</strong>
+            Reportes publicados
+        </div>
+        <div class="stat">
+            <strong id="pendientes">0</strong>
+            Pendientes
+        </div>
+        <div class="stat">
+            <strong id="atendidos">0</strong>
+            Atendidos
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>¿Cómo funciona?</h2>
+        <p class="intro">
+            La participación ciudadana permite que las personas
+            comuniquen las necesidades de sus comunidades.
+            Cada reporte puede consultarse y recibir actualizaciones
+            sobre su seguimiento.
+        </p>
+        <div class="notice">
+            <strong>Una propuesta para Salvatierra:</strong>
+            escuchar a la ciudadanía, identificar necesidades
+            y mantener informada a la comunidad.
+        </div>
+    </div>
+
+</section>
+
+<section id="reportar">
+
+    <div class="card">
+        <h2>📝 Comparte una necesidad</h2>
+        <p class="intro">
+            Describe una situación que consideres importante
+            atender en tu comunidad.
+        </p>
+
+        <form id="reportForm">
+
+            <label for="titulo">Título del reporte</label>
+            <input id="titulo" maxlength="90"
+                placeholder="Ej. Falta de alumbrado público" required>
+
+            <label for="categoria">Categoría</label>
+            <select id="categoria" required>
+                <option value="">Selecciona una categoría</option>
+                <option>Agua potable</option>
+                <option>Drenaje</option>
+                <option>Alumbrado público</option>
+                <option>Caminos y calles</option>
+                <option>Espacios públicos</option>
+                <option>Seguridad</option>
+                <option>Educación</option>
+                <option>Otro</option>
+            </select>
+
+            <label for="ubicacion">Comunidad o ubicación</label>
+            <input id="ubicacion" maxlength="100"
+                placeholder="Ej. San Nicolás de los Agustinos" required>
+
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" maxlength="600"
+                placeholder="Explica qué sucede y por qué es importante atenderlo..."
+                required></textarea>
+
+            <button class="primary-btn" type="submit">
+                Publicar reporte
+            </button>
+
+        </form>
+
+        <div class="notice">
+            Este es un prototipo escolar. No incluyas teléfonos,
+            domicilios particulares ni información personal sensible.
+        </div>
+    </div>
+
+</section>
+
+<section id="reportes">
+
+    <div class="card">
+        <h2>📋 Reportes ciudadanos</h2>
+        <p class="intro">
+            Consulta las necesidades compartidas por la comunidad
+            y revisa el estado de su seguimiento.
+        </p>
+
+        <label for="filtro">Filtrar por categoría</label>
+        <select id="filtro" onchange="renderReportes()">
+            <option value="Todas">Todas las categorías</option>
+            <option>Agua potable</option>
+            <option>Drenaje</option>
+            <option>Alumbrado público</option>
+            <option>Caminos y calles</option>
+            <option>Espacios públicos</option>
+            <option>Seguridad</option>
+            <option>Educación</option>
+            <option>Otro</option>
+        </select>
+
+        <div id="listaReportes"></div>
+    </div>
+
+</section>
+
+<section id="participar">
+
+    <div class="card">
+        <h2>💬 Participación ciudadana</h2>
+        <p class="intro">
+            La construcción de una mejor comunidad también
+            comienza con ideas, propuestas y colaboración.
+        </p>
+
+        <label for="propuesta">Comparte una propuesta</label>
+        <textarea id="propuesta" maxlength="500"
+            placeholder="¿Qué mejorarías en tu comunidad?"></textarea>
+
+        <button class="primary-btn" onclick="agregarPropuesta()">
+            Publicar propuesta
+        </button>
+
+        <h2 style="margin-top:35px;">Propuestas de la comunidad</h2>
+        <div id="listaPropuestas"></div>
+    </div>
+
+</section>
+
+<footer>
+    <strong>Salvatierra Participa</strong>
+    <br>
+    Una propuesta escolar de participación ciudadana.
+    <br>
+    <small>Prototipo demostrativo · Salvatierra, Guanajuato</small>
+</footer>
+
+<script>
+
+let reportes = JSON.parse(
+    localStorage.getItem("salvatierraReportes")
+) || [];
+
+let propuestas = JSON.parse(
+    localStorage.getItem("salvatierraPropuestas")
+) || [];
+
+function guardarDatos() {
+    localStorage.setItem(
+        "salvatierraReportes",
+        JSON.stringify(reportes)
+    );
+
+    localStorage.setItem(
+        "salvatierraPropuestas",
+        JSON.stringify(propuestas)
+    );
+}
+
+function showSection(id, btn) {
+    document.querySelectorAll("section").forEach(section => {
+        section.classList.remove("active");
+    });
+
+    document.getElementById(id).classList.add("active");
+
+    document.querySelectorAll("nav button").forEach(button => {
+        button.classList.remove("active");
+    });
+
+    btn.classList.add("active");
+
+    if (id === "reportes") renderReportes();
+    if (id === "participar") renderPropuestas();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.getElementById("reportForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const nuevoReporte = {
+        id: Date.now(),
+        titulo: document.getElementById("titulo").value.trim(),
+        categoria: document.getElementById("categoria").value,
+        ubicacion: document.getElementById("ubicacion").value.trim(),
+        descripcion: document.getElementById("descripcion").value.trim(),
+        estado: "Pendiente",
+        fecha: new Date().toLocaleDateString("es-MX")
+    };
+
+    if (!nuevoReporte.titulo || !nuevoReporte.ubicacion ||
+        !nuevoReporte.descripcion || !nuevoReporte.categoria) {
+        alert("Completa todos los campos.");
+        return;
+    }
+
+    reportes.unshift(nuevoReporte);
+
+    guardarDatos();
+    this.reset();
+    actualizarEstadisticas();
+    renderReportes();
+
+    alert("¡Tu reporte se publicó correctamente!");
+    showSection("reportes", document.querySelectorAll("nav button")[2]);
+});
+
+function renderReportes() {
+    const lista = document.getElementById("listaReportes");
+    const filtro = document.getElementById("filtro").value;
+
+    lista.innerHTML = "";
+
+    const filtrados = reportes.filter(reporte =>
+        filtro === "Todas" || reporte.categoria === filtro
+    );
+
+    if (filtrados.length === 0) {
+        lista.innerHTML = `
+            <div class="empty">
+                Todavía no hay reportes en esta categoría.
+            </div>
+        `;
+        return;
+    }
+
+    filtrados.forEach(reporte => {
+        const article = document.createElement("article");
+        article.className = "report";
+
+        const title = document.createElement("h3");
+        title.textContent = reporte.titulo;
+
+        const category = document.createElement("p");
+        category.textContent = "Categoría: " + reporte.categoria;
+
+        const location = document.createElement("p");
+        location.textContent = "📍 " + reporte.ubicacion;
+
+        const description = document.createElement("p");
+        description.textContent = reporte.descripcion;
+
+        const date = document.createElement("small");
+        date.textContent = "Publicado: " + reporte.fecha;
+
+        const status = document.createElement("span");
+        status.className = "status";
+
+        if (reporte.estado === "En revisión") {
+            status.classList.add("revision");
+        }
+
+        if (reporte.estado === "Atendido") {
+            status.classList.add("atendido");
+        }
+
+        status.textContent = reporte.estado;
+
+        const actions = document.createElement("div");
+        actions.className = "report-actions";
+
+        const statusButton = document.createElement("button");
+        statusButton.textContent = "Cambiar estado";
+        statusButton.onclick = () => cambiarEstado(reporte.id);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete";
+        deleteButton.textContent = "Eliminar";
+        deleteButton.onclick = () => eliminarReporte(reporte.id);
+
+        actions.append(statusButton, deleteButton);
+
+        article.append(
+            title, category, location, description,
+            date, document.createElement("br"),
+            status, actions
+        );
+
+        lista.appendChild(article);
+    });
+}
+
+function cambiarEstado(id) {
+    const reporte = reportes.find(r => r.id === id);
+    if (!reporte) return;
+
+    const estados = ["Pendiente", "En revisión", "Atendido"];
+    const actual = estados.indexOf(reporte.estado);
+
+    reporte.estado = estados[(actual + 1) % estados.length];
+
+    guardarDatos();
+    renderReportes();
+    actualizarEstadisticas();
+}
+
+function eliminarReporte(id) {
+    if (!confirm("¿Deseas eliminar este reporte?")) return;
+
+    reportes = reportes.filter(r => r.id !== id);
+
+    guardarDatos();
+    renderReportes();
+    actualizarEstadisticas();
+}
+
+function agregarPropuesta() {
+    const input = document.getElementById("propuesta");
+    const texto = input.value.trim();
+
+    if (!texto) {
+        alert("Escribe una propuesta primero.");
+        return;
+    }
+
+    propuestas.unshift({
+        id: Date.now(),
+        texto: texto,
+        fecha: new Date().toLocaleDateString("es-MX")
+    });
+
+    input.value = "";
+
+    guardarDatos();
+    renderPropuestas();
+
+    alert("¡Propuesta publicada!");
+}
+
+function renderPropuestas() {
+    const lista = document.getElementById("listaPropuestas");
+    lista.innerHTML = "";
+
+    if (propuestas.length === 0) {
+        lista.innerHTML = `
+            <div class="empty">
+                Todavía no hay propuestas. ¡Sé el primero en participar!
+            </div>
+        `;
+        return;
+    }
+
+    propuestas.forEach(propuesta => {
+        const article = document.createElement("article");
+        article.className = "report";
+
+        const content = document.createElement("p");
+        content.textContent = propuesta.texto;
+
+        const date = document.createElement("small");
+        date.textContent = "Publicado: " + propuesta.fecha;
+
+        const button = document.createElement("button");
+        button.className = "delete";
+        button.textContent = "Eliminar";
+        button.onclick = () => eliminarPropuesta(propuesta.id);
+
+        article.append(content, date, document.createElement("br"), button);
+        lista.appendChild(article);
+    });
+}
+
+function eliminarPropuesta(id) {
+    if (!confirm("¿Deseas eliminar esta propuesta?")) return;
+
+    propuestas = propuestas.filter(p => p.id !== id);
+
+    guardarDatos();
+    renderPropuestas();
+}
+
+function actualizarEstadisticas() {
+    document.getElementById("totalReportes").textContent =
+        reportes.length;
+
+    document.getElementById("pendientes").textContent =
+        reportes.filter(r => r.estado === "Pendiente").length;
+
+    document.getElementById("atendidos").textContent =
+        reportes.filter(r => r.estado === "Atendido").length;
+}
+
+actualizarEstadisticas();
+renderReportes();
+renderPropuestas();
+
+</script>
+
+</body>
+</html>

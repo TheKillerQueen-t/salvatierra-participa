@@ -470,29 +470,56 @@ footer {
     <small>Prototipo demostrativo · Salvatierra, Guanajuato</small>
 </footer>
 
-<script>
 
-let reportes = JSON.parse(
-    localStorage.getItem("salvatierraReportes")
-) || [];
+<script type="module">
 
-let propuestas = JSON.parse(
-    localStorage.getItem("salvatierraPropuestas")
-) || [];
+// 1. CONEXIÓN CON FIREBASE
 
-function guardarDatos() {
-    localStorage.setItem(
-        "salvatierraReportes",
-        JSON.stringify(reportes)
-    );
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 
-    localStorage.setItem(
-        "salvatierraPropuestas",
-        JSON.stringify(propuestas)
-    );
-}
+import {
+    getAuth,
+    signInAnonymously,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    onSnapshot,
+    query,
+    orderBy,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDuFhI9-yy5e1vgFWBsNTY7O3F58-ga73Q",
+  authDomain: "salvatierra-participa.firebaseapp.com",
+  projectId: "salvatierra-participa",
+  storageBucket: "salvatierra-participa.firebasestorage.app",
+  messagingSenderId: "815891691332",
+  appId: "1:815891691332:web:d2924ec3378bc714db8911",
+  measurementId: "G-MCD58J106K"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+
+// 2. VARIABLES
+
+let reportes = [];
+let propuestas = [];
+let usuarioActual = null;
+let escuchasIniciadas = false;
+
+
+// 3. CAMBIAR ENTRE SECCIONES
 
 function showSection(id, btn) {
+
     document.querySelectorAll("section").forEach(section => {
         section.classList.remove("active");
     });
@@ -511,37 +538,63 @@ function showSection(id, btn) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-document.getElementById("reportForm").addEventListener("submit", function(e) {
+
+// 4. PUBLICAR UN REPORTE
+
+document.getElementById("reportForm").addEventListener("submit", async function(e) {
+
     e.preventDefault();
 
+    if (!usuarioActual) {
+        alert("La conexión todavía se está preparando. Intenta nuevamente en unos segundos.");
+        return;
+    }
+
     const nuevoReporte = {
-        id: Date.now(),
         titulo: document.getElementById("titulo").value.trim(),
         categoria: document.getElementById("categoria").value,
         ubicacion: document.getElementById("ubicacion").value.trim(),
         descripcion: document.getElementById("descripcion").value.trim(),
         estado: "Pendiente",
-        fecha: new Date().toLocaleDateString("es-MX")
+        fecha: new Date().toLocaleDateString("es-MX"),
+        createdAt: serverTimestamp(),
+        uid: usuarioActual.uid
     };
 
-    if (!nuevoReporte.titulo || !nuevoReporte.ubicacion ||
-        !nuevoReporte.descripcion || !nuevoReporte.categoria) {
+    if (
+        !nuevoReporte.titulo ||
+        !nuevoReporte.ubicacion ||
+        !nuevoReporte.descripcion ||
+        !nuevoReporte.categoria
+    ) {
         alert("Completa todos los campos.");
         return;
     }
 
-    reportes.unshift(nuevoReporte);
+    try {
 
-    guardarDatos();
-    this.reset();
-    actualizarEstadisticas();
-    renderReportes();
+        await addDoc(collection(db, "reportes"), nuevoReporte);
 
-    alert("¡Tu reporte se publicó correctamente!");
-    showSection("reportes", document.querySelectorAll("nav button")[2]);
+        this.reset();
+
+        alert("¡Tu reporte se publicó correctamente!");
+
+        showSection("reportes", document.querySelectorAll("nav button")[2]);
+
+    } catch (error) {
+
+        console.error("Error al publicar reporte:", error);
+        alert("No se pudo publicar el reporte. Intenta nuevamente.");
+
+    }
+
 });
 
+
+// 5. MOSTRAR REPORTES
+
 function renderReportes() {
+
     const lista = document.getElementById("listaReportes");
     const filtro = document.getElementById("filtro").value;
 
@@ -552,15 +605,18 @@ function renderReportes() {
     );
 
     if (filtrados.length === 0) {
+
         lista.innerHTML = `
             <div class="empty">
                 Todavía no hay reportes en esta categoría.
             </div>
         `;
+
         return;
     }
 
     filtrados.forEach(reporte => {
+
         const article = document.createElement("article");
         article.className = "report";
 
@@ -592,91 +648,91 @@ function renderReportes() {
 
         status.textContent = reporte.estado;
 
-        const actions = document.createElement("div");
-        actions.className = "report-actions";
-
-        const statusButton = document.createElement("button");
-        statusButton.textContent = "Cambiar estado";
-        statusButton.onclick = () => cambiarEstado(reporte.id);
-
-        const deleteButton = document.createElement("button");
-        deleteButton.className = "delete";
-        deleteButton.textContent = "Eliminar";
-        deleteButton.onclick = () => eliminarReporte(reporte.id);
-
-        actions.append(statusButton, deleteButton);
-
         article.append(
-            title, category, location, description,
-            date, document.createElement("br"),
-            status, actions
+            title,
+            category,
+            location,
+            description,
+            date,
+            document.createElement("br"),
+            status
         );
 
         lista.appendChild(article);
+
     });
+
 }
 
-function cambiarEstado(id) {
-    const reporte = reportes.find(r => r.id === id);
-    if (!reporte) return;
 
-    const estados = ["Pendiente", "En revisión", "Atendido"];
-    const actual = estados.indexOf(reporte.estado);
+// 6. PUBLICAR UNA PROPUESTA
 
-    reporte.estado = estados[(actual + 1) % estados.length];
+async function agregarPropuesta() {
 
-    guardarDatos();
-    renderReportes();
-    actualizarEstadisticas();
-}
-
-function eliminarReporte(id) {
-    if (!confirm("¿Deseas eliminar este reporte?")) return;
-
-    reportes = reportes.filter(r => r.id !== id);
-
-    guardarDatos();
-    renderReportes();
-    actualizarEstadisticas();
-}
-
-function agregarPropuesta() {
     const input = document.getElementById("propuesta");
     const texto = input.value.trim();
+
+    if (!usuarioActual) {
+        alert("La conexión todavía se está preparando. Intenta nuevamente en unos segundos.");
+        return;
+    }
 
     if (!texto) {
         alert("Escribe una propuesta primero.");
         return;
     }
 
-    propuestas.unshift({
-        id: Date.now(),
-        texto: texto,
-        fecha: new Date().toLocaleDateString("es-MX")
-    });
+    if (texto.length > 500) {
+        alert("La propuesta no puede superar los 500 caracteres.");
+        return;
+    }
 
-    input.value = "";
+    try {
 
-    guardarDatos();
-    renderPropuestas();
+        await addDoc(collection(db, "propuestas"), {
 
-    alert("¡Propuesta publicada!");
+            texto: texto,
+            fecha: new Date().toLocaleDateString("es-MX"),
+            createdAt: serverTimestamp(),
+            uid: usuarioActual.uid
+
+        });
+
+        input.value = "";
+
+        alert("¡Propuesta publicada!");
+
+    } catch (error) {
+
+        console.error("Error al publicar propuesta:", error);
+        alert("No se pudo publicar la propuesta. Intenta nuevamente.");
+
+    }
+
 }
 
+
+// 7. MOSTRAR PROPUESTAS
+
 function renderPropuestas() {
+
     const lista = document.getElementById("listaPropuestas");
+
     lista.innerHTML = "";
 
     if (propuestas.length === 0) {
+
         lista.innerHTML = `
             <div class="empty">
                 Todavía no hay propuestas. ¡Sé el primero en participar!
             </div>
         `;
+
         return;
     }
 
     propuestas.forEach(propuesta => {
+
         const article = document.createElement("article");
         article.className = "report";
 
@@ -686,26 +742,19 @@ function renderPropuestas() {
         const date = document.createElement("small");
         date.textContent = "Publicado: " + propuesta.fecha;
 
-        const button = document.createElement("button");
-        button.className = "delete";
-        button.textContent = "Eliminar";
-        button.onclick = () => eliminarPropuesta(propuesta.id);
+        article.append(content, date);
 
-        article.append(content, date, document.createElement("br"), button);
         lista.appendChild(article);
+
     });
+
 }
 
-function eliminarPropuesta(id) {
-    if (!confirm("¿Deseas eliminar esta propuesta?")) return;
 
-    propuestas = propuestas.filter(p => p.id !== id);
-
-    guardarDatos();
-    renderPropuestas();
-}
+// 8. ACTUALIZAR ESTADÍSTICAS
 
 function actualizarEstadisticas() {
+
     document.getElementById("totalReportes").textContent =
         reportes.length;
 
@@ -714,13 +763,109 @@ function actualizarEstadisticas() {
 
     document.getElementById("atendidos").textContent =
         reportes.filter(r => r.estado === "Atendido").length;
+
 }
+
+
+// 9. ESCUCHAR LOS CAMBIOS EN FIRESTORE
+
+function iniciarEscuchas() {
+
+    if (escuchasIniciadas) return;
+
+    escuchasIniciadas = true;
+
+    const consultaReportes = query(
+        collection(db, "reportes"),
+        orderBy("createdAt", "desc")
+    );
+
+    onSnapshot(consultaReportes, snapshot => {
+
+        reportes = snapshot.docs.map(documento => ({
+            id: documento.id,
+            ...documento.data()
+        }));
+
+        renderReportes();
+        actualizarEstadisticas();
+
+    }, error => {
+
+        console.error("Error al consultar reportes:", error);
+        alert("No se pudieron cargar los reportes.");
+
+    });
+
+
+    const consultaPropuestas = query(
+        collection(db, "propuestas"),
+        orderBy("createdAt", "desc")
+    );
+
+    onSnapshot(consultaPropuestas, snapshot => {
+
+        propuestas = snapshot.docs.map(documento => ({
+            id: documento.id,
+            ...documento.data()
+        }));
+
+        renderPropuestas();
+
+    }, error => {
+
+        console.error("Error al consultar propuestas:", error);
+        alert("No se pudieron cargar las propuestas.");
+
+    });
+
+}
+
+
+// 10. INICIAR SESIÓN ANÓNIMA AUTOMÁTICAMENTE
+
+onAuthStateChanged(auth, async user => {
+
+    if (user) {
+
+        usuarioActual = user;
+
+        iniciarEscuchas();
+
+    } else {
+
+        try {
+
+            await signInAnonymously(auth);
+
+        } catch (error) {
+
+            console.error("Error de autenticación:", error);
+
+            alert("No se pudo establecer la conexión con Firebase. Revisa tu conexión a internet.");
+
+        }
+
+    }
+
+});
+
+
+// 11. MANTENER COMPATIBILIDAD CON LOS BOTONES HTML
+
+window.showSection = showSection;
+window.renderReportes = renderReportes;
+window.agregarPropuesta = agregarPropuesta;
+
+
+// 12. CARGA INICIAL
 
 actualizarEstadisticas();
 renderReportes();
 renderPropuestas();
 
 </script>
+
 
 </body>
 </html>
